@@ -111,7 +111,6 @@ def convert_dss_folder(input_dir: str, output_dir: str) -> None:
     logging.info(f"Done. MP3s saved to {out_dir}")
 
 
-# quick CLI test
 if __name__ == "__main__":
     args_parser = argparse.ArgumentParser(
         description="Convert each file in --input folder with the .dss format to .mp3"
