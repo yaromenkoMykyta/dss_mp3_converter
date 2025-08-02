@@ -8,3 +8,5 @@ av==15.0.0
     # via -r requirements.in
 lameenc==1.8.1
     # via -r requirements.in
+numpy==2.3.2
+    # via -r requirements.in
