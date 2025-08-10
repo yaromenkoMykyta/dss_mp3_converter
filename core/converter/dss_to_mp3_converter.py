@@ -1,14 +1,14 @@
 from pathlib import Path
+
 import av
 import lameenc
-import logging
-import argparse
 
-# logging level
-_LOGGER_LEVER = logging.INFO
-
-# extentions of dss files to read
-_DSS_FILE_FORMATS = [".dss", ".DSS"]
+from core.converter.extentions import (
+    DssFilesNotFoundException,
+    InputFolderNotExistException,
+)
+from core.misc.get_list_of_dss_files import get_list_of_dss_files
+from core.misc.logger import get_logger
 
 # 0 -> best, 9 -> worst
 _MP3_QUALITY = 4
@@ -16,20 +16,11 @@ _MP3_QUALITY = 4
 # bit rate of mp3 file
 _MP3_BITRATE = 192
 
-logging.basicConfig(
-    format="[%(asctime)s] %(levelname)s: %(message)s", level=_LOGGER_LEVER
-)
+
+logger = get_logger(__name__)
 
 
-class DssFilesNotFoundException(Exception):
-    pass
-
-
-class InputFolderNotExistException(Exception):
-    pass
-
-
-def _convert_dss_to_mp3_file(input_path: Path, output_path: Path) -> None:
+def convert_dss_to_mp3_file(input_path: Path, output_path: Path) -> None:
     """
     converts a DSS (Digital Speech Standard) audio file to an MP3 file.
 
@@ -86,43 +77,26 @@ def convert_dss_folder(input_dir: str, output_dir: str) -> None:
 
     :return: `None`
     """
-    in_dir = Path(input_dir).expanduser().resolve()
+    input_dir_path = Path(input_dir).expanduser().resolve()
 
-    if not in_dir.exists():
+    if not input_dir_path.exists():
         raise InputFolderNotExistException(
-            f"Input folder with absolute path {in_dir} doesn't exist"
+            f"Input folder with absolute path {input_dir} doesn't exist"
         )
 
     out_dir = Path(output_dir).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    dss_files = [f for f in in_dir.rglob("*") if f.suffix.lower() in _DSS_FILE_FORMATS]
+    dss_files = get_list_of_dss_files(input_dir_path)
 
     if not dss_files:
-        raise DssFilesNotFoundException(f"No DSS files in {in_dir}")
+        raise DssFilesNotFoundException(f"No DSS files in {input_dir}")
 
-    logging.info("Found %s files with .dss format in %s", len(dss_files), in_dir)
+    logger.info("Found %s files with .dss format in %s", len(dss_files), input_dir)
 
     for dss_file in dss_files:
-        logging.debug("Converting of %s to mp3", dss_file)
+        logger.debug("Converting of %s to mp3", dss_file)
         mp3_path = out_dir / (dss_file.stem + ".mp3")
-        _convert_dss_to_mp3_file(dss_file, mp3_path)
-        logging.debug("Converted file saved to %s", mp3_path)
-    logging.info(f"Done. MP3s saved to {out_dir}")
-
-
-if __name__ == "__main__":
-    args_parser = argparse.ArgumentParser(
-        description="Convert each file in --input folder with the .dss format to .mp3"
-        " format and save it to --output folder",
-    )
-    args_parser.add_argument(
-        "input", type=str, help="folder wheare are located .dss files to convert"
-    )
-    args_parser.add_argument(
-        "output", type=str, help="folder to save converted .mp3 files"
-    )
-
-    args = args_parser.parse_args()
-
-    convert_dss_folder(args.input, args.output)
+        convert_dss_to_mp3_file(dss_file, mp3_path)
+        logger.debug("Converted file saved to %s", mp3_path)
+    logger.info(f"Done. MP3s saved to {out_dir}")
