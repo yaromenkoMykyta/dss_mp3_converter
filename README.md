@@ -1,23 +1,13 @@
 # DSS-to-MP3 Converter
 
-A lightweight **pure-Python** utility that batch-converts Olympus DSS (Digital Speech Standard) dictation files to high-quality MP3—no external `ffmpeg` or shell calls required.
-
-The script wraps two self-contained binary wheels:
-
-| Library | Purpose | Notes |
-|---------|---------|-------|
-| **[PyAV](https://github.com/PyAV-Org/PyAV)** | Decodes DSS through the FFmpeg libraries bundled inside the wheel | No system FFmpeg needed |
-| **[lameenc](https://github.com/etienne-lms/lameenc)** | Encodes raw PCM to MP3 via an embedded LAME build | Works on Windows / macOS / Linux |
-
----
+A lightweight **pure-Python** utility that batch-converts Olympus DSS (Digital Speech Standard) dictation files to 
+ - high-quality MP3—no external `ffmpeg` 
+ - or to any other format, but `ffmpeg` should be installed on your system.
 
 ## 📃 Requirements
 
 🐍 Python 3.8 – 3.12
-* 🪈 Pip-installable wheels:
-  ```bash
-  pip install av lameenc numpy
-  ```
+
 ---
 ## 👨🏻‍🔧 Installation
 ```bash
@@ -29,11 +19,36 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
 pip install -r requirements.txt
 ```
----
-## 🏁 Quick start
+If you would like to convert to formats other than MP3, you will also need to install `ffmpeg` on your system.
+MacOS users can use [Homebrew](https://brew.sh/):
 ```bash
-python dss_to_mp3_converter.py /path/to/dss_input /path/to/mp3_output
+brew install ffmpeg
 ```
+---
+Linux users can install it via your package manager, e.g.:
+```bash
+sudo apt install ffmpeg  # Debian/Ubuntu
+sudo dnf install ffmpeg  # Fedora/RHEL
+sudo pacman -S ffmpeg      # Arch Linux
+```
+Windows users can download the [FFmpeg binaries](https://ffmpeg.org/download.html) and
+add the `bin` directory to your `PATH` environment variable.
+```bash
+setx PATH "%PATH%;C:\path\to\ffmpeg\bin"
+```
+
+## 🏁 Quick start
+Use the `convert_dss_to_mp3.py` script to convert `.dss` files to `.mp3` format:
+```bash
+PYTHONPATH=. python3 scripts/convert_dss_to_mp3.py /path/to/dss_input /path/to/mp3_output
+```
+
+If you want to convert to a different format, use the `convert_dss_to_anything.py` script:
+```bash
+PYTHONPATH=. python3 scripts/convert_dss_to_anything.py /path/to/dss_input /path/to/mp3_output --format wav
+```
+The `--format` option can be any format supported by `ffmpeg`, such as `wav`, `ogg`, `flac`, etc.
+This script will use `ffmpeg` to convert the files, so make sure it is installed on your system.
 
 ### Example output:
 ```pgsql
